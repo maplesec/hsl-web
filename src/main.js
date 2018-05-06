@@ -6,11 +6,13 @@ import 'element-ui/lib/theme-chalk/index.css'
 import App from './App'
 import router from './router'
 import axios from './services/axios'
+import prototypeFunc from './utils/prototypeFunc'
 
 import i18n from './lang'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
+Vue.use(prototypeFunc)
 
 /* eslint-disable no-new */
 new Vue({

@@ -28,6 +28,7 @@
     </el-dialog>
 
     <el-table
+      v-loading="loading"
       :data="tableData"
       style="width: 100%">
       <el-table-column
@@ -83,6 +84,7 @@ export default {
     }
     return {
       tableData: [],
+      loading: true,
       dialogFormVisible: false,
       dialogStatus: '',
       form: {
@@ -117,8 +119,13 @@ export default {
   },
   methods: {
     initTable () {
+      this.loading = true
       let service = api.getUserList()
       service.then((res) => {
+        console.log('res', res)
+        setTimeout(() => {
+          this.loading = false
+        }, 500)
         this.tableData = res.data
       })
     },
