@@ -5,6 +5,9 @@ Vue.use(VueI18n)
 
 const messages = {
   en: {
+    http: {
+      'GET_WRONG_PARAM': 'wrong parameters'
+    },
     message: {
       greet: 'good luck'
     },
@@ -21,7 +24,10 @@ const messages = {
       confirm: 'Confirm',
       cancel: 'Cancel',
       space: ' ',
-      operation: 'Operation'
+      operation: 'Operation',
+      requestTimeout: 'Request Timeout',
+      error: 'Error',
+      success: 'Success'
     },
     user: {
       user: 'User',
@@ -36,6 +42,9 @@ const messages = {
     }
   },
   zh: {
+    http: {
+      'GET_WRONG_PARAM': '参数错误'
+    },
     message: {
       greet: '祝君好运'
     },
@@ -52,7 +61,10 @@ const messages = {
       confirm: '确定',
       cancel: '取消',
       space: '',
-      operation: '操作'
+      operation: '操作',
+      requestTimeout: '请求超时',
+      error: '错误',
+      success: '成功'
     },
     user: {
       user: '用户',

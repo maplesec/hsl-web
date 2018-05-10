@@ -1,7 +1,9 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-button class="filter-item" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('common.add')}}</el-button>
+      <el-button class="filter-item" @click="handleCreate(true)" type="primary" icon="el-icon-edit">{{$t('common.add')}}</el-button>
+      <el-input v-model="searchValue"></el-input>
+      <el-button class="filter-item" @click="initTable" type="promary">搜索</el-button>
     </div>
 
     <el-dialog :title="$t('common.add') + $t('common.space') + $t('user.user')" :visible.sync="dialogFormVisible">
@@ -30,6 +32,7 @@
     <el-table
       v-loading="loading"
       :data="tableData"
+      @sort-change="handleSortChange"
       style="width: 100%">
       <el-table-column
         prop="id"
@@ -39,11 +42,13 @@
       <el-table-column
         prop="account"
         :label="$t('user.account')"
+        sortable="custom"
         width="180">
       </el-table-column>
       <el-table-column
         prop="name"
         :label="$t('user.name')"
+        sortable="custom"
         width="180">
       </el-table-column>
       <el-table-column :label="$t('common.operation')">
@@ -53,6 +58,15 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagination.page"
+      :page-sizes="[2, 5, 10, 20]"
+      :page-size="pagination.pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="pagination.totalCount">
+    </el-pagination>
   </div>
 
 </template>
@@ -84,6 +98,14 @@ export default {
     }
     return {
       tableData: [],
+      pagination: {
+        totalCount: 0,
+        page: 1,
+        pageSize: 5,
+        sortBy: null,
+        sort: null
+      },
+      searchValue: '',
       loading: true,
       dialogFormVisible: false,
       dialogStatus: '',
@@ -118,16 +140,42 @@ export default {
     this.initTable()
   },
   methods: {
-    initTable () {
+    initTable (isSearch) {
       this.loading = true
-      let service = api.getUserList()
-      service.then((res) => {
-        console.log('res', res)
+      if (isSearch) {
+        this.pagination.page = 1
+      }
+      const query = {
+        page: this.pagination.page,
+        pageSize: this.pagination.pageSize,
+        filter: this.searchValue,
+        sortBy: this.pagination.sortBy,
+        sort: this.pagination.sort
+      }
+      this.$doRequest(api.getUserList(query), '获取用户列表', this.$showErrorType.none).then((res) => {
         setTimeout(() => {
           this.loading = false
         }, 500)
-        this.tableData = res.data
+        this.tableData = res.result
+        this.pagination.totalCount = res.totalCount
       })
+    },
+    handleSizeChange (val) {
+      this.pagination.pageSize = val
+      this.initTable()
+    },
+    handleCurrentChange (val) {
+      this.pagination.page = val
+      this.initTable()
+    },
+    handleSortChange (val) {
+      this.pagination.sortBy = val.prop
+      if (val.order) {
+        this.pagination.sort = val.order === 'ascending' ? 'asc' : 'desc'
+      } else {
+        this.pagination.sort = null
+      }
+      this.initTable()
     },
     resetForm () {
       this.form = {
@@ -201,7 +249,7 @@ export default {
           this.form.roles.forEach((item) => {
             params2.roles.push(item.toString())
           })
-          api.editUser(this.form.id, params).then(() => {
+          this.$doRequest(api.editUser(this.form.id, params), '编辑用户').then(() => {
             api.setUserRoles(this.form.id, params2).then(() => {
               this.initTable()
               this.dialogFormVisible = false

@@ -1,78 +1,8 @@
 import ElementUI from 'element-ui'
-import VueI18n from 'vue-i18n'
+import i18n from '../lang'
 
 export default {
   install (Vue, options) {
-    Vue.use(VueI18n)
-    const messages = {
-      en: {
-        message: {
-          greet: 'good luck'
-        },
-        validation: {
-          require: 'Please enter the',
-          characters: 'characters',
-          checkPass: 'Please enter the password again',
-          passDiff: 'Different Passwords'
-        },
-        common: {
-          add: 'Add',
-          edit: 'Edit',
-          delete: 'Delete',
-          confirm: 'Confirm',
-          cancel: 'Cancel',
-          space: ' ',
-          operation: 'Operation'
-        },
-        user: {
-          user: 'User',
-          account: 'Account',
-          name: 'Name',
-          password: 'Password',
-          checkPass: 'CheckPass'
-        },
-        role: {
-          role: 'Role',
-          name: 'Name'
-        }
-      },
-      zh: {
-        message: {
-          greet: '祝君好运'
-        },
-        validation: {
-          require: '请输入',
-          characters: '字符',
-          checkPass: '请再次输入密码',
-          passDiff: '两次输入密码不一致'
-        },
-        common: {
-          add: '添加',
-          edit: '编辑',
-          delete: '删除',
-          confirm: '确定',
-          cancel: '取消',
-          space: '',
-          operation: '操作'
-        },
-        user: {
-          user: '用户',
-          account: '账户',
-          name: '用户名',
-          password: '密码',
-          checkPass: '确认密码'
-        },
-        role: {
-          role: '角色',
-          name: '名称'
-        }
-      }
-    }
-
-    const i18n = new VueI18n({
-      locale: 'zh',
-      messages
-    })
     Vue.prototype.$isError = (e, httpFailed = false) => {
       /*
       -1: 请求超时
@@ -110,17 +40,36 @@ export default {
       none: 'none'
     }
 
-    Vue.prototype.showMessage = (actionText, type) => {
-      console.log(i18n)
-      console.log(i18n.vm.$t('common.add'))
-      ElementUI.Message({
-        type: type,
-        message: actionText
-      })
+    Vue.prototype.$showMessage = (status, message, showType) => {
+      const typeColor = status === 1 ? 'success' : 'error'
+      const typeText = status === 1 ? 'common.success' : 'common.error'
+      switch (showType) {
+        case 'message':
+          ElementUI.Message({
+            type: typeColor,
+            message: message
+          })
+          break
+        case 'notice':
+          ElementUI.Notify({
+            title: i18n.t(typeText),
+            message: message
+          })
+          break
+        case 'messageBox':
+          ElementUI.Alert(message, i18n.t(typeText), {
+            confirmButtonText: i18n.t('confirm')
+          })
+          break
+      }
     }
 
-    Vue.prototype.showError = (actionText, errorStatus, message, showType) => {
-      switch (errorStatus) {
+    Vue.prototype.$resolveResponse = (actionText, status, message, showType) => {
+      switch (status) {
+        case 1:
+          // 请求成功
+          Vue.prototype.$showMessage(1, message, showType)
+          break
         case -1:
           // 请求超时
           break
@@ -129,25 +78,7 @@ export default {
           break
         case 0:
           // 一般错误
-          switch (showType) {
-            case 'message':
-              ElementUI.Message({
-                type: 'error',
-                message: message
-              })
-              break
-            case 'notice':
-              ElementUI.Notify({
-                title: '错误',
-                message: message
-              })
-              break
-            case 'messageBox':
-              ElementUI.Alert(message, '错误', {
-                confirmButtonText: '确定'
-              })
-              break
-          }
+          Vue.prototype.$showMessage(0, message, showType)
           break
         case 3:
           // 请求失败
@@ -155,9 +86,33 @@ export default {
       }
     }
 
-    Vue.prototype.showMessageCallback = (actionName, service, callback, status = function () {}) => {
-      status('loading')
+    /**
+     * 请求的封装,包含了response校验以及提示,返回promise
+     * @param promise
+     * @param actionText
+     * @param successShowType
+     * @param errorShowType
+     */
+    Vue.prototype.$doRequest = (promise, actionText, successShowType = 'message', errorShowType = 'message') => {
+      return new Promise((resolve, reject) => {
+        promise.then((e) => {
+          const status = Vue.prototype.$isError(e)
+          if (status === 1) {
+            Vue.prototype.$resolveResponse(actionText, 1, actionText + i18n.t('common.success'), successShowType)
+            // 请求成功时, 只返回response中的内容
+            resolve(e.data.response)
+          } else {
+            Vue.prototype.$resolveResponse(actionText, status, i18n.t('http.' + e.data.type), errorShowType)
+            reject(e)
+          }
+        },
+        (e) => {
+          const status = Vue.prototype.$isError(e, true)
+          // TODO: 错误信息需要再确认
+          Vue.prototype.$resolveResponse(actionText, status, e.message, errorShowType)
+          reject(e)
+        })
+      })
     }
   }
-
 }

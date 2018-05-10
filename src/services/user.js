@@ -1,7 +1,7 @@
 import axios from '@/services/axios'
 
 // 获取用户列表
-export const getUserList = () => axios.get('/acl_user')
+export const getUserList = (query) => axios.get(`/acl_user?page=${query.page}&pageSize=${query.pageSize}&filter=${query.filter}&sortBy=${query.sortBy}&sort=${query.sort}`)
 
 // 添加用户
 export const addUser = (params) => axios.post('/acl_user', params)
