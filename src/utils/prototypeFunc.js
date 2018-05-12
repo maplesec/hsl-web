@@ -75,6 +75,8 @@ export default {
           break
         case 2:
           // 登录超时
+          // TODO: 做登出操作
+          Vue.prototype.$showMessage(0, message, showType)
           break
         case 0:
           // 一般错误

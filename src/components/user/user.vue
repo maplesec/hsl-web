@@ -4,6 +4,8 @@
       <el-button class="filter-item" @click="handleCreate(true)" type="primary" icon="el-icon-edit">{{$t('common.add')}}</el-button>
       <el-input v-model="searchValue"></el-input>
       <el-button class="filter-item" @click="initTable" type="promary">搜索</el-button>
+      <el-button class="filter-item" @click="login" type="promary">登录</el-button>
+      <el-button class="filter-item" @click="logout" type="promary">登出</el-button>
     </div>
 
     <el-dialog :title="$t('common.add') + $t('common.space') + $t('user.user')" :visible.sync="dialogFormVisible">
@@ -102,8 +104,8 @@ export default {
         totalCount: 0,
         page: 1,
         pageSize: 5,
-        sortBy: null,
-        sort: null
+        sortBy: '',
+        sort: ''
       },
       searchValue: '',
       loading: true,
@@ -155,9 +157,13 @@ export default {
       this.$doRequest(api.getUserList(query), '获取用户列表', this.$showErrorType.none).then((res) => {
         setTimeout(() => {
           this.loading = false
-        }, 500)
+        }, 200)
         this.tableData = res.result
         this.pagination.totalCount = res.totalCount
+      }, (err) => {
+        setTimeout(() => {
+          this.loading = false
+        }, 200)
       })
     },
     handleSizeChange (val) {
@@ -182,6 +188,16 @@ export default {
         name: '',
         account: ''
       }
+    },
+    login () {
+      api.login().then((res) => {
+        console.log(res)
+      })
+    },
+    logout () {
+      api.logout().then((res) => {
+        console.log(res)
+      })
     },
     handleCreate () {
       this.resetForm()
