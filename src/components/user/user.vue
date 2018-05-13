@@ -161,6 +161,9 @@ export default {
         this.tableData = res.result
         this.pagination.totalCount = res.totalCount
       }, (err) => {
+        if (err) {
+          console.log(err)
+        }
         setTimeout(() => {
           this.loading = false
         }, 200)
@@ -210,7 +213,7 @@ export default {
         this.roleList = []
         res.data.forEach((item) => {
           this.roleList.push({
-            key: item.id,
+            key: item.id.toString(),
             label: item.name
           })
         })
@@ -232,8 +235,8 @@ export default {
       })
     },
     handleEdit (id) {
-      api.getUser(id).then((res) => {
-        this.form = res.data || {}
+      this.$doRequest(api.getUser(id), '获取用户', this.$showErrorType.none).then((res) => {
+        this.form = res || {}
         this.dialogStatus = 'edit'
         this.dialogFormVisible = true
         this.$nextTick(() => {
@@ -243,7 +246,7 @@ export default {
           this.roleList = []
           res.data.forEach((item) => {
             this.roleList.push({
-              key: item.id,
+              key: item.id.toString(),
               label: item.name
             })
           })
@@ -255,21 +258,18 @@ export default {
     },
     editUser () {
       this.$refs['dataForm'].validate((valid) => {
+        console.log(this.form.roles)
         if (valid) {
           const params = {
             name: this.form.name,
             account: this.form.account,
-            password: this.form.password
+            password: this.form.password,
+            roles: this.form.roles
           }
-          let params2 = {roles: []}
-          this.form.roles.forEach((item) => {
-            params2.roles.push(item.toString())
-          })
+
           this.$doRequest(api.editUser(this.form.id, params), '编辑用户').then(() => {
-            api.setUserRoles(this.form.id, params2).then(() => {
-              this.initTable()
-              this.dialogFormVisible = false
-            })
+            this.initTable()
+            this.dialogFormVisible = false
           })
         }
       })

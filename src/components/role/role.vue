@@ -2,12 +2,52 @@
   <div class="app-container calendar-list-container">
     <div class="filter-container">
       <el-button class="filter-item" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('common.add')}}</el-button>
+      <el-input v-model="searchValue"></el-input>
+      <el-button class="filter-item" @click="initTable" type="promary">搜索</el-button>
     </div>
 
     <el-dialog :title="$t('common.add') + $t('common.space') + $t('role.role')" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="form" label-position="left" label-width="70px" >
-        <el-form-item :label="$t('role.name')" :label-width="formLabelWidth" prop="name">
+      <el-form :rules="rules" ref="dataForm" :model="form" label-position="left" label-width="120px" class="demo-dynamic">
+        <el-form-item :label="$t('role.name')" prop="name">
           <el-input v-model="form.name" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item
+          v-for="(resource, index) in form.resources"
+          :label="'资源' + index"
+          :key="resource.key"
+        >
+          <el-col :span="8">
+            <el-form-item
+              :prop="'resources.' + index + '.value'"
+              :rules="{
+                required: true, message: '资源不能为空', trigger: 'blur'
+              }">
+              <el-input v-model="resource.value"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="1">
+            -
+          </el-col>
+          <el-col :span="8">
+            <el-form-item
+              :prop="'resources.' + index + '.operation'"
+              :rules="{
+                required: true, message: '操作不能为空', trigger: 'blur'
+              }">
+              <el-input v-model="resource.operation"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="3">
+            -
+          </el-col>
+          <el-col :span="4">
+            <el-form-item>
+              <el-button @click.prevent="removeResource(resource)" style="float:right">删除</el-button>
+            </el-form-item>
+          </el-col>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="addResource">新增资源</el-button>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -18,7 +58,9 @@
     </el-dialog>
 
     <el-table
+      v-loading="loading"
       :data="tableData"
+      @sort-change="handleSortChange"
       style="width: 100%">
       <el-table-column
         prop="id"
@@ -28,6 +70,7 @@
       <el-table-column
         prop="name"
         :label="$t('role.name')"
+        sortable="custom"
         width="180">
       </el-table-column>
       <el-table-column :label="$t('common.operation')">
@@ -37,6 +80,15 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagination.page"
+      :page-sizes="[2, 5, 10, 20]"
+      :page-size="pagination.pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="pagination.totalCount">
+    </el-pagination>
   </div>
 
 </template>
@@ -44,14 +96,27 @@
 <script>
 
 import * as api from '@/services/role'
+// import * as api2 from '@/services/resource'
 export default {
   data () {
     return {
       tableData: [],
+      pagination: {
+        totalCount: 0,
+        page: 1,
+        pageSize: 5,
+        sortBy: '',
+        sort: ''
+      },
+      searchValue: '',
+      loading: true,
       dialogFormVisible: false,
       dialogStatus: '',
       form: {
-        name: ''
+        name: '',
+        resources: [{
+          value: ''
+        }]
       },
       rules: {
         name: [
@@ -66,16 +131,69 @@ export default {
     this.initTable()
   },
   methods: {
-    initTable () {
-      let service = api.getRoleList()
-      service.then((res) => {
-        this.tableData = res.data
+    initTable (isSearch) {
+      this.loading = true
+      if (isSearch) {
+        this.pagination.page = 1
+      }
+      const query = {
+        page: this.pagination.page,
+        pageSize: this.pagination.pageSize,
+        filter: this.searchValue,
+        sortBy: this.pagination.sortBy,
+        sort: this.pagination.sort
+      }
+      this.$doRequest(api.getRoleList(query), '获取角色列表', this.$showErrorType.none).then((res) => {
+        setTimeout(() => {
+          this.loading = false
+        }, 200)
+        this.tableData = res.result
+        this.pagination.totalCount = res.totalCount
+      }, (err) => {
+        if (err) {
+          console.log(err)
+        }
+        setTimeout(() => {
+          this.loading = false
+        }, 200)
       })
+    },
+    handleSizeChange (val) {
+      this.pagination.pageSize = val
+      this.initTable()
+    },
+    handleCurrentChange (val) {
+      this.pagination.page = val
+      this.initTable()
+    },
+    handleSortChange (val) {
+      this.pagination.sortBy = val.prop
+      if (val.order) {
+        this.pagination.sort = val.order === 'ascending' ? 'asc' : 'desc'
+      } else {
+        this.pagination.sort = null
+      }
+      this.initTable()
     },
     resetForm () {
       this.form = {
-        name: ''
+        name: '',
+        resources: [{
+          value: ''
+        }]
       }
+    },
+    removeResource (item) {
+      var index = this.form.resources.indexOf(item)
+      if (index !== -1) {
+        this.form.resources.splice(index, 1)
+      }
+    },
+    addResource () {
+      this.form.resources.push({
+        value: '',
+        key: Date.now()
+      })
     },
     handleCreate () {
       this.resetForm()
@@ -99,8 +217,8 @@ export default {
       })
     },
     handleEdit (id) {
-      api.getRole(id).then((res) => {
-        this.form = res.data || {}
+      this.$doRequest(api.getRole(id), '获取用户', this.$showErrorType.none).then((res) => {
+        this.form = res || {}
         this.dialogStatus = 'edit'
         this.dialogFormVisible = true
         this.$nextTick(() => {
@@ -130,3 +248,10 @@ export default {
   }
 }
 </script>
+<style>
+  .demo-dynamic .el-input {
+    /*margin-right: 10px;*/
+    /*width: 270px;*/
+    /*vertical-align: top;*/
+  }
+</style>

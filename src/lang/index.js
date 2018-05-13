@@ -39,6 +39,11 @@ const messages = {
     role: {
       role: 'Role',
       name: 'Name'
+    },
+    resource: {
+      resource: 'Resource',
+      id: 'ID',
+      name: 'Name'
     }
   },
   zh: {
@@ -75,6 +80,11 @@ const messages = {
     },
     role: {
       role: '角色',
+      name: '名称'
+    },
+    resource: {
+      resource: '资源',
+      id: 'ID',
       name: '名称'
     }
   }

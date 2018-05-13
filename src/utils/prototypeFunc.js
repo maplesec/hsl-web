@@ -12,6 +12,7 @@ export default {
       3: 请求失败错误
        */
       if (!httpFailed) {
+        console.log('isError', e)
         if (typeof (e.data.status) === 'undefined') {
           return 0
         } else {
