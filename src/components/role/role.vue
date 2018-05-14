@@ -12,17 +12,17 @@
           <el-input v-model="form.name" auto-complete="off"></el-input>
         </el-form-item>
         <el-form-item
-          v-for="(resource, index) in form.resources"
+          v-for="(resource, index) in form.allows"
           :label="'资源' + index"
           :key="resource.key"
         >
           <el-col :span="8">
             <el-form-item
-              :prop="'resources.' + index + '.value'"
+              :prop="'allows.' + index + '.resources'"
               :rules="{
                 required: true, message: '资源不能为空', trigger: 'blur'
               }">
-              <el-select v-model="resource.value" placeholder="选择资源">
+              <el-select v-model="resource.resources" placeholder="选择资源">
                 <el-option
                   v-for="item in resourceOptions"
                   :key="item.value"
@@ -37,11 +37,11 @@
           </el-col>
           <el-col :span="8">
             <el-form-item
-              :prop="'resources.' + index + '.operation'"
+              :prop="'allows.' + index + '.permissions'"
               :rules="{
                 required: true, message: '操作不能为空', trigger: 'blur'
               }">
-              <el-select v-model="resource.operation" placeholder="选择权限">
+              <el-select v-model="resource.permissions" multiple  placeholder="选择权限">
                 <el-option
                   v-for="item in operationOptions"
                   :key="item.value"
@@ -129,9 +129,7 @@ export default {
       dialogStatus: '',
       form: {
         name: '',
-        resources: [{
-          value: ''
-        }]
+        allows: []
       },
       resourceOptions: [],
       operationOptions: [{
@@ -201,10 +199,7 @@ export default {
     resetForm () {
       this.form = {
         name: '',
-        resources: [{
-          value: '',
-          key: Date.now()
-        }]
+        allows: []
       }
     },
     removeResource (item) {
@@ -214,8 +209,9 @@ export default {
       }
     },
     addResource () {
-      this.form.resources.push({
-        value: '',
+      this.form.allows.push({
+        resources: '',
+        permissions: [],
         key: Date.now()
       })
     },
@@ -226,14 +222,24 @@ export default {
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
+      this.$doRequest(api2.getResourceAll(), '获取资源列表', this.$showErrorType.none).then((res) => {
+        this.resourceOptions = []
+        res.result.forEach((item) => {
+          this.resourceOptions.push({
+            value: item.name,
+            label: item.name
+          })
+        })
+      })
     },
     createRole () {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const params = {
-            name: this.form.name
+            name: this.form.name,
+            allows: this.form.allows
           }
-          api.addRole(params).then(() => {
+          this.$doRequest(api.addRole(params), '增加角色').then(() => {
             this.initTable()
             this.dialogFormVisible = false
           })
@@ -242,6 +248,15 @@ export default {
     },
     handleEdit (id) {
       this.$doRequest(api.getRole(id), '获取指定角色', this.$showErrorType.none).then((res) => {
+        let allows = []
+        for (let allow in res.allows) {
+          allows.push({
+            resources: allow,
+            permissions: res.allows[allow],
+            key: Date.now()
+          })
+        }
+        res.allows = allows
         this.form = res || {}
         this.dialogStatus = 'edit'
         this.dialogFormVisible = true
@@ -260,12 +275,15 @@ export default {
       })
     },
     editRole () {
+      console.log('click')
       this.$refs['dataForm'].validate((valid) => {
+        console.log('valid')
         if (valid) {
           const params = {
-            name: this.form.name
+            name: this.form.name,
+            allows: this.form.allows
           }
-          api.editRole(this.form.id, params).then(() => {
+          this.$doRequest(api.editRole(this.form.id, params), '编辑角色').then(() => {
             this.initTable()
             this.dialogFormVisible = false
           })
