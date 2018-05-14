@@ -3,6 +3,9 @@ import axios from '@/services/axios'
 // 获取角色列表
 export const getRoleList = (query) => axios.get(`/acl_role?page=${query.page}&pageSize=${query.pageSize}&filter=${query.filter}&sortBy=${query.sortBy}&sort=${query.sort}`)
 
+// 获取所有角色
+export const getRoleAll = () => axios.get(`/acl_role`)
+
 // 添加角色
 export const addRole = (params) => axios.post('/acl_role', params)
 

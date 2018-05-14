@@ -22,7 +22,14 @@
               :rules="{
                 required: true, message: '资源不能为空', trigger: 'blur'
               }">
-              <el-input v-model="resource.value"></el-input>
+              <el-select v-model="resource.value" placeholder="选择资源">
+                <el-option
+                  v-for="item in resourceOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="1">
@@ -34,7 +41,14 @@
               :rules="{
                 required: true, message: '操作不能为空', trigger: 'blur'
               }">
-              <el-input v-model="resource.operation"></el-input>
+              <el-select v-model="resource.operation" placeholder="选择权限">
+                <el-option
+                  v-for="item in operationOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="3">
@@ -96,6 +110,7 @@
 <script>
 
 import * as api from '@/services/role'
+import * as api2 from '@/services/resource'
 // import * as api2 from '@/services/resource'
 export default {
   data () {
@@ -118,6 +133,14 @@ export default {
           value: ''
         }]
       },
+      resourceOptions: [],
+      operationOptions: [{
+        value: 'show',
+        label: '查看'
+      }, {
+        value: 'operate',
+        label: '操作'
+      }],
       rules: {
         name: [
           {required: true, message: this.$t('validation.require') + this.$t('common.space') + this.$t('role.name')},
@@ -179,7 +202,8 @@ export default {
       this.form = {
         name: '',
         resources: [{
-          value: ''
+          value: '',
+          key: Date.now()
         }]
       }
     },
@@ -217,12 +241,21 @@ export default {
       })
     },
     handleEdit (id) {
-      this.$doRequest(api.getRole(id), '获取用户', this.$showErrorType.none).then((res) => {
+      this.$doRequest(api.getRole(id), '获取指定角色', this.$showErrorType.none).then((res) => {
         this.form = res || {}
         this.dialogStatus = 'edit'
         this.dialogFormVisible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].clearValidate()
+        })
+        this.$doRequest(api2.getResourceAll(), '获取资源列表', this.$showErrorType.none).then((res) => {
+          this.resourceOptions = []
+          res.result.forEach((item) => {
+            this.resourceOptions.push({
+              value: item.name,
+              label: item.name
+            })
+          })
         })
       })
     },

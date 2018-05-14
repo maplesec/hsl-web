@@ -209,9 +209,9 @@ export default {
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
-      api2.getRoleList().then((res) => {
+      this.$doRequest(api2.getRoleAll(), '获取角色列表', this.$showErrorType.none).then((res) => {
         this.roleList = []
-        res.data.forEach((item) => {
+        res.result.forEach((item) => {
           this.roleList.push({
             key: item.id.toString(),
             label: item.name
@@ -242,16 +242,13 @@ export default {
         this.$nextTick(() => {
           this.$refs['dataForm'].clearValidate()
         })
-        api2.getRoleList().then((res) => {
+        this.$doRequest(api2.getRoleAll(), '获取角色列表', this.$showErrorType.none).then((res) => {
           this.roleList = []
-          res.data.forEach((item) => {
+          res.result.forEach((item) => {
             this.roleList.push({
               key: item.id.toString(),
               label: item.name
             })
-          })
-          api.getUserRoles(id).then((res) => {
-            console.log('roles', res)
           })
         })
       })
