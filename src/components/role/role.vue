@@ -203,16 +203,16 @@ export default {
       }
     },
     removeResource (item) {
-      var index = this.form.resources.indexOf(item)
+      var index = this.form.allows.indexOf(item)
       if (index !== -1) {
-        this.form.resources.splice(index, 1)
+        this.form.allows.splice(index, 1)
       }
     },
     addResource () {
       this.form.allows.push({
         resources: '',
         permissions: [],
-        key: Date.now()
+        key: this.$uuid()
       })
     },
     handleCreate () {
@@ -226,7 +226,7 @@ export default {
         this.resourceOptions = []
         res.result.forEach((item) => {
           this.resourceOptions.push({
-            value: item.name,
+            value: item.id,
             label: item.name
           })
         })
@@ -253,7 +253,7 @@ export default {
           allows.push({
             resources: allow,
             permissions: res.allows[allow],
-            key: Date.now()
+            key: this.$uuid()
           })
         }
         res.allows = allows
@@ -267,7 +267,7 @@ export default {
           this.resourceOptions = []
           res.result.forEach((item) => {
             this.resourceOptions.push({
-              value: item.name,
+              value: item.id,
               label: item.name
             })
           })
