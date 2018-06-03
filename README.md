@@ -28,3 +28,11 @@ npm test
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+完善目标
+1. 实现登陆
+2. 首次进入网页，登陆校验
+3. 用户权限验证，路由跳转限制
+4. 接口报错提示
+
+// 指定页面做缓存控制, 指定页面做权限控制

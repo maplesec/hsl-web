@@ -26,6 +26,7 @@
 
 <script>
 import { validateLowerCase } from '@/utils/validate'
+import * as api from '@/services/user'
 
 export default{
   name: 'login',
@@ -48,7 +49,7 @@ export default{
     return {
       loginForm: {
         username: 'admin',
-        password: '1111111'
+        password: '111111'
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -69,7 +70,15 @@ export default{
     handleLogin () {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-
+          const params = {
+            account: this.loginForm.username,
+            password: this.loginForm.password
+          }
+          this.$doRequest(api.login(params), '登陆').then((res) => {
+            console.log(res)
+            this.$store.dispatch('app/setProfile', res)
+            this.$router.push({name: 'user'});
+          })
         } else {
           console.log('error submit!')
         }
