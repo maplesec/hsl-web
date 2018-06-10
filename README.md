@@ -30,10 +30,14 @@ npm test
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
 完善目标
-1. 实现登陆
-2. 首次进入网页，登陆校验
+0. 实现登陆
+0. 首次进入网页，登陆校验
 3. 用户权限验证，路由跳转限制
 4. 接口报错提示
 5. 与store相关的调用，放在action中执行
+6. 优化界面
+7. 删除操作，需要再确认
+8. 查重功能
+9. sidebar滚动条
 
 // 指定页面做缓存控制, 指定页面做权限控制

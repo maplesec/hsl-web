@@ -1,11 +1,10 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
+      <el-input v-model="searchValue" style="width: 200px;"></el-input>
       <el-button class="filter-item" @click="handleCreate(true)" type="primary" icon="el-icon-edit">{{$t('common.add')}}</el-button>
-      <el-input v-model="searchValue"></el-input>
+
       <el-button class="filter-item" @click="initTable" type="promary">搜索</el-button>
-      <el-button class="filter-item" @click="login" type="promary">登录</el-button>
-      <el-button class="filter-item" @click="logout" type="promary">登出</el-button>
     </div>
 
     <el-dialog :title="$t('common.add') + $t('common.space') + $t('user.user')" :visible.sync="dialogFormVisible">
@@ -191,16 +190,6 @@ export default {
         name: '',
         account: ''
       }
-    },
-    login () {
-      api.login().then((res) => {
-        console.log(res)
-      })
-    },
-    logout () {
-      api.logout().then((res) => {
-        console.log(res)
-      })
     },
     handleCreate () {
       this.resetForm()

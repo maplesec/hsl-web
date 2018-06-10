@@ -8,7 +8,7 @@ import router from './router'
 import axios from './services/axios'
 import prototypeFunc from './utils/prototypeFunc'
 import store from './store'
-
+import 'normalize.css/normalize.css'// A modern alternative to CSS resets
 import i18n from './lang'
 
 Vue.config.productionTip = false

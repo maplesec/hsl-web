@@ -1,8 +1,8 @@
 <template>
   <el-container>
-    <sidebar></sidebar>
-    <el-container>
-      <el-header>
+    <sidebar class="sidebar-container"></sidebar>
+    <el-container class="right-main" :class="{'right-main-close': !sidebar.opened}">
+      <el-header height="50px">
         <hamburger class="hamburger-container" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>
         <div class="right-menu">
           <span>{{profile.name}}</span>
@@ -66,5 +66,33 @@
   .right-menu {
     float: right;
     height: 100%;
+  }
+
+  .el-header {
+    padding: 0;
+    border-bottom: solid 1px #e6e6e6;
+  }
+
+  .app-main {
+    padding: 20px;
+  }
+
+  .sidebar-container{
+    height: 100%;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1001;
+    overflow: hidden;
+  }
+
+  .right-main{
+    margin-left: 200px;
+    transition: margin-left 0.35s;
+  }
+
+  .right-main-close{
+    margin-left: 65px !important;
   }
 </style>
