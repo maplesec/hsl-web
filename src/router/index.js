@@ -28,17 +28,26 @@ const router = new Router({
         {
           path: '/user',
           name: 'user',
-          component: resolve => require(['@/components/user/user'], resolve)
+          component: resolve => require(['@/components/user/user'], resolve),
+          meta: {
+            title: '用户'
+          }
         },
         {
           path: '/role',
           name: 'role',
-          component: resolve => require(['@/components/role/role'], resolve)
+          component: resolve => require(['@/components/role/role'], resolve),
+          meta: {
+            title: '角色'
+          }
         },
         {
           path: '/resource',
           name: 'resource',
-          component: resolve => require(['@/components/resource/resource'], resolve)
+          component: resolve => require(['@/components/resource/resource'], resolve),
+          meta: {
+            title: '资源'
+          }
         }
       ]
     },
@@ -52,20 +61,23 @@ const router = new Router({
 
 router.beforeEach(function(to, from, next) {
   // TODO: 判断页面是否需要权限,再执行以下代码
-  // TODO: 首次打开网页,根据接口判断是否免登陆
+  // 首次打开网页,根据接口判断是否免登陆
   if(store.getters['app/profile'].needCheckLogin){
     const profile_api = axios.get('/acl_user/profile');
     (profile_api).then(res => {
-      console.log('profile:' +  res);
+      if (res.data && res.data && res.data.status === 1) {
+        store.dispatch('app/setProfile', res.data.response);
+        next();
+      } else {
+        next('/login');
+      }
+    }, err => {
+      next('/login');
     })
-
-
     store.dispatch('app/checkLogin')
-    next('/login');
   }else{
     next();
   }
-
 })
 
 export default router;

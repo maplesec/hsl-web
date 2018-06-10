@@ -227,7 +227,7 @@ export default {
             account: this.form.account,
             password: this.form.password
           }
-          api.addUser(params).then(() => {
+          this.$doRequest(api.addUser(params), '创建用户').then(() => {
             this.initTable()
             this.dialogFormVisible = false
           })
@@ -273,7 +273,7 @@ export default {
     },
     handleDelete (id, row) {
       console.log('delete', id, row)
-      api.deleteUser(id).then(() => {
+      this.$doRequest(api.deleteUser(id), '删除用户').then(() => {
         this.initTable()
       })
     }

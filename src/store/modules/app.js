@@ -9,7 +9,8 @@ const app = {
       id: null,
       name: null,
       account: null,
-      permissions: {}
+      permissions: {},
+      roles: []
     }
   },
   getters: {
