@@ -40,4 +40,10 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 8. 查重功能
 9. sidebar滚动条
 
+10. vuex重构：
+a. 与后台有关的数据, 通过action和store实现
+b. vuex只处理数据, 展现相关的在view中实现
+c. 接口返回数据的统一化处理,封装给action使用,返回 status, message(失败), result(成功)
+d. 提示的统一化处理,封装给view使用
+
 // 指定页面做缓存控制, 指定页面做权限控制
