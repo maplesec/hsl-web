@@ -4,24 +4,43 @@ import $doRequest from '@/utils/formatFetch'
 const user = {
   namespaced: true,
   state: {
-    userList: {
+    list: {
       loading: false,
-      data: []
+      data: [],
+      pagination: {
+        totalCount: 0,
+        page: 1,
+        pageSize: 5,
+        sortBy: '',
+        sort: ''
+      }
     }
   },
   getters: {},
   mutations: {
-    SET_USER_lIST: (state, result) => {
-      console.log('SET_USER_lIST', result);
-      state.userList.data = result;
+    SET_lIST: (state, formatResponse) => {
+      console.log('setlist:',formatResponse)
+      state.list.data = formatResponse.result;
+      state.list.loading = false;
+      state.list.pagination.totalCount = formatResponse.totalCount;
+    },
+    LOADING_lIST: (state) => {
+      state.list.loading = true;
+    },
+    SET_PAGINATION: (state, pagination) => {
+      state.list.pagination = { ...state.list.pagination, ...pagination };
     }
   },
   actions: {
-    getUserList({ commit, state, dispatch }, query ){
-      return $doRequest(api.getUserList(query), (result)=>{
+    getList({ commit }, query ){
+      commit('LOADING_lIST');
+      return $doRequest(api.getUserList(query), (formatResponse)=>{
         // TODO: 存入store
-        commit('SET_USER_lIST', result);
+        commit('SET_lIST', formatResponse);
       })
+    },
+    setPagination({ commit }, pagination){
+      commit('SET_PAGINATION', pagination);
     }
   }
 }

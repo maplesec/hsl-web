@@ -24,6 +24,12 @@ const $isError = (e, httpFailed = false) => {
   }
 }
 
+/**
+ * 按照统一格式返回异步请求
+ * @param promise 要做的异步请求
+ * @param onSuccess 成功时的回调(可选)
+ * @returns {Promise.<TResult>}
+ */
 const $doRequest = (promise, onSuccess = ()=>{}) => {
   return promise.then((e) => {
       const status = $isError(e)
